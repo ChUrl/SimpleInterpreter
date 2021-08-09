@@ -1,0 +1,11 @@
+object nil:
+    1
+
+def pass:
+    nil
+
+object inttrait:
+    def add(other):
+        self $int_add(other)
+    def eq(other):
+        self $int_eq(other)
