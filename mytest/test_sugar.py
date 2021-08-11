@@ -7,6 +7,7 @@ from interpreter import Interpreter
 
 def sugar_test_helper(expr):
     ast = parse("x = " + expr)
+    print(ast)
     interpreter = Interpreter()
     w_module = interpreter.make_module()
     interpreter.eval(ast, w_module)
@@ -40,6 +41,8 @@ def test_mod():
 
 def test_inc():
     assert sugar_test_helper("1 ++") == 2
+    assert sugar_test_helper("1 ++ + 1") == 3  # Is this allowed?
+    assert sugar_test_helper("2 * 2 ++") == 6
 
 
 def test_mixed_precedence():
@@ -47,3 +50,10 @@ def test_mixed_precedence():
     assert sugar_test_helper("1 + 2 + 3 - 5") == 1
     assert sugar_test_helper("10 - 2 * 5") == 0
     assert sugar_test_helper("1 + 2 * 2 * 3 - 3 * 4") == 1
+
+
+def test_parenthesis():
+    assert sugar_test_helper("2 * (2 + 3)") == 10
+    assert sugar_test_helper("(2 + 5)") == 7
+    assert sugar_test_helper("(3 + 3) % 2") == 0
+    assert sugar_test_helper("(2 * 2) ++") == 5

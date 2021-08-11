@@ -175,8 +175,13 @@ def sugar(expr):
 
     if len(expr) == 2:
         return build_methodcall([op, []], simpleast.PrimitiveMethodCall, expr[0])  # ([name, arg], class, receiver)
-   
+
     return build_methodcall([op, [expr[2]]], simpleast.PrimitiveMethodCall, expr[0])  # ([name, arg], class, receiver)
+
+
+@pg.production("expression : OpenBracket expression CloseBracket")
+def sugar_parenthesis(expr):
+    return expr[1]
 
 
 @pg.production("msg-chain : methodcall")
