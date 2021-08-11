@@ -154,7 +154,6 @@ def expression(expr):
     return expr[0]
 
 
-# TODO: Parenthesis
 # Syntactic Sugar: Plus, Minus, Multiply, Divide, Modulo, Increment
 @pg.production("expression : expression Plus expression")
 @pg.production("expression : expression Minus expression")
@@ -173,10 +172,10 @@ def sugar(expr):
         "Increment": "$int_inc"
     }[expr[1].name]
 
-    if len(expr) == 2:
+    if len(expr) == 2:  # unary operator
         return build_methodcall([op, []], simpleast.PrimitiveMethodCall, expr[0])  # ([name, arg], class, receiver)
 
-    return build_methodcall([op, [expr[2]]], simpleast.PrimitiveMethodCall, expr[0])  # ([name, arg], class, receiver)
+    return build_methodcall([op, [expr[2]]], simpleast.PrimitiveMethodCall, expr[0])
 
 
 @pg.production("expression : OpenBracket expression CloseBracket")
