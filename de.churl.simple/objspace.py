@@ -25,7 +25,7 @@ class ObjectSpace(object):
         import os
         builtins = os.path.join(
             os.path.dirname(__file__),
-            'builtins.simple')
+            '../builtins.simple')
         with open(builtins, 'r') as f:
             return f.read()
 

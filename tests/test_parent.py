@@ -1,7 +1,6 @@
 import py
 
 from simpleparser import parse
-from objmodel import W_NormalObject
 from interpreter import Interpreter
 
 

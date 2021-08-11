@@ -1,35 +1,40 @@
 """
 A 'simple' parser.  Don't look into this file :-)
 """
-import py
-import simpleast
+from rply import ParserGenerator, Token
 from simplelexer import lex
-from rply.token import Token
-
-from rply import ParserGenerator
+import simpleast
 
 pg = ParserGenerator(["If", "Else", "While", "Def", "Object", "Number",
                       "String", "Name", "Indent", "Dedent", "Newline", "OpenBracket",
-                      "CloseBracket", "Comma", "Assign", "Colon", "PrimitiveName", "EOF"])
+                      "CloseBracket", "Comma", "Assign", "Colon",
+                      "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",  # Sugar
+                      "PrimitiveName", "EOF"],
+                     # Operator precedence for ambiguous rules, ascending
+                     precedence=[("left", ["Plus", "Minus"]),
+                                 ("left", ["Multiply", "Divide", "Modulo"]),
+                                 ("left", ["Increment"])])
 
 
-def build_methodcall(call, cls):
+def build_methodcall(call, cls, receiver=None):
     if len(call) == 1:
         args = []
     else:
         args = call[1]
     name = call[0]
-    return cls(None, name, args)
+
+    return cls(receiver, name, args)
 
 
 @pg.production("program : statements EOF")
 @pg.production("program : newlines statements EOF")
 def program(prog):
     # import pdb; pdb.set_trace()
-    if prog[0] is None:
+    if prog[0] is None:  # source starts with newlines
         prog = prog[1]
     else:
         prog = prog[0]
+
     return prog
 
 
@@ -37,16 +42,17 @@ def program(prog):
 @pg.production("statements : statement statements")
 @pg.production("statements : statement newlines statements")
 def statements(stmts):
-    if len(stmts) == 1:
+    if len(stmts) == 1:  # single statement
         stmt = stmts[0]
         return simpleast.Program([stmt])
-    elif stmts[0] is None:
+    elif stmts[0] is None:  # ?
         assert len(stmts) == 2
         return stmts[1]
-    elif len(stmts) == 2:
+    elif len(stmts) == 2:  # merge programs (simpleast.Program)
         stmt = stmts[0]
         result = stmts[1]
         result.statements.insert(0, stmt)
+
     return result
 
 
@@ -71,6 +77,7 @@ def ifstatement(ifstmt):
     elseblock = None
     if len(ifstmt) > 3:
         elseblock = ifstmt[-1]
+
     return simpleast.IfStatement(ifstmt[1], ifstmt[2], elseblock)
 
 
@@ -88,10 +95,12 @@ def objectstatement(obj):
     if len(obj) == 3:
         blk = obj[2]
     else:
-        parents = obj[2]
+        print(obj)
+        parents = obj[2]  # list of assignments (simpleast.Assignment)
         names = [p.attrname for p in parents]
         expressions = [p.expression for p in parents]
         blk = obj[3]
+
     return simpleast.ObjectDefinition(name, blk, names, expressions)
 
 
@@ -105,6 +114,7 @@ def defstatement(defn):
     else:
         args = []
         blk = defn[2]
+
     return simpleast.FunctionDefinition(name, args, blk)
 
 
@@ -118,37 +128,63 @@ def block(blk):
 def simplestatement(stmts):
     if len(stmts) == 2:
         return simpleast.ExprStatement(stmts[0])
-    # assignement
+
+    # assignment
     result = stmts[0]
     assign = stmts[2]
-    if (isinstance(result, simpleast.MethodCall) and
-            result.arguments == []):
-        return simpleast.Assignment(
-            result.receiver, result.methodname, assign)
-    else:
-        source_pos = stmts[1].source_pos
-        raise ParseError(source_pos,
-                         ErrorInformation(source_pos.idx,
-                                          customerror="can only assign to attribute"))  # , self.source)
+    if isinstance(result, simpleast.MethodCall) and result.arguments == []:  # assign to attribute
+        return simpleast.Assignment(result.receiver, result.methodname, assign)
+
+    source_pos = stmts[1].source_pos
+    raise ParseError(source_pos,
+                     ErrorInformation(source_pos.idx,
+                                      customerror="can only assign to attribute"))  # , self.source)
 
 
 @pg.production("expression : basic_expression")
 @pg.production("expression : basic_expression msg-chain")
 def expression(expr):
-    if len(expr) > 1:
+    if len(expr) > 1:  # expression has messages
         prev = expr[0]
-        for i in expr[1]:
+        for i in expr[1]:  # reverse message order
             i.receiver = prev
             prev = i
-        return expr[1][-1]
+        return expr[1][-1]  # return last message
+
     return expr[0]
+
+
+# TODO: Parenthesis
+# Syntactic Sugar: Plus, Minus, Multiply, Divide, Modulo, Increment
+@pg.production("expression : expression Plus expression")
+@pg.production("expression : expression Minus expression")
+@pg.production("expression : expression Multiply expression")
+@pg.production("expression : expression Divide expression")
+@pg.production("expression : expression Modulo expression")
+@pg.production("expression : expression Increment expression")
+@pg.production("expression : expression Increment")
+def sugar(expr):
+    op = {
+        "Plus": "$int_add",
+        "Minus": "$int_sub",
+        "Multiply": "$int_mul",
+        "Divide": "$int_div",
+        "Modulo": "$int_mod",
+        "Increment": "$int_inc"
+    }[expr[1].name]
+
+    if len(expr) == 2:
+        return build_methodcall([op, []], simpleast.PrimitiveMethodCall, expr[0])  # ([name, arg], class, receiver)
+   
+    return build_methodcall([op, [expr[2]]], simpleast.PrimitiveMethodCall, expr[0])  # ([name, arg], class, receiver)
 
 
 @pg.production("msg-chain : methodcall")
 @pg.production("msg-chain : methodcall msg-chain")
 def msg_chain(cc):
     if len(cc) > 1:
-        return [cc[0]] + cc[1]
+        return [cc[0]] + cc[1]  # merge message lists for chain
+
     return cc
 
 
@@ -166,6 +202,7 @@ def string_expression(stmt):
 def implicitselfmethodcall(call):
     methodcall = call[0]
     methodcall.receiver = simpleast.ImplicitSelf()
+
     return methodcall
 
 
@@ -210,7 +247,8 @@ def argumentslist(args):
 @pg.production("parentdefinitions : assignment Comma parentdefinitions")
 def arguments(args):
     if len(args) == 3:
-        return [args[0]] + args[2]
+        return [args[0]] + args[2]  # merge argument lists for chain
+
     return [args[0]]
 
 

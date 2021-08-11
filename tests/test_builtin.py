@@ -1,8 +1,6 @@
-import py
-
 from simpleparser import parse
-from objmodel import W_NormalObject
 from interpreter import Interpreter
+
 
 def test_builtin_simple():
     builtincode = """
@@ -29,6 +27,7 @@ ax = a x
     interpreter.eval(ast, w_module)
     assert w_module.getvalue("ax").value == 1
     assert w_module.getvalue("tx").value == 1
+
 
 def test_inttrait():
     builtincode = """
@@ -66,7 +65,7 @@ tr = inttrait
     assert w_module.getvalue("m1").value == 42
     assert w_module.getvalue("m2").value == 2
 
-    
+
 def test_builtin_default():
     ast = parse("""
 def sumupto(x):
@@ -80,7 +79,7 @@ x = sumupto(100)
     # the constructor is called without arguments, so the default builtins are
     # used
     interpreter = Interpreter()
-    # test that the default inttrait defines a method ``add``
+    # tests that the default inttrait defines a method ``add``
     w_module = interpreter.make_module()
     interpreter.eval(ast, w_module)
     assert w_module.getvalue("x").value == 5050

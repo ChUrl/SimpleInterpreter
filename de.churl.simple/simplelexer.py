@@ -159,6 +159,16 @@ OpenBracket = r'[\[\(\{]'
 CloseBracket = r'[\]\)\}]'
 
 # ____________________________________________________________
+# Syntactic Sugar Operators
+
+Plus = r'\+'
+Minus = r'-'
+Multiply = r'\*'
+Divide = r'/'
+Increment = r'\+\+'
+Modulo = r'%'
+
+# ____________________________________________________________
 # Keywords
 
 If = r'if'
@@ -168,8 +178,9 @@ Def = r'def'
 Object = r'object'
 
 tokens = ["If", "Else", "While", "Def", "Object", "Number", "String", "Ignore",
-          "NewlineAndWhitespace", "OpenBracket", "CloseBracket", "Comma", "Assign",
-          "Colon", "Name", "PrimitiveName"]
+          "NewlineAndWhitespace", "OpenBracket", "CloseBracket", "Comma", "Assign", "Colon",
+          "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",  # Sugar
+          "Name", "PrimitiveName"]
 
 
 def make_lexer():
