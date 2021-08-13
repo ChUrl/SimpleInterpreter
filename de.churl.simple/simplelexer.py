@@ -130,7 +130,6 @@ def make_single_string(delim):
 # Literals
 
 Number = r'(([+-])?[1-9][0-9]*)|0'
-String = group(make_single_string(r"\'"), make_single_string(r'\"'))
 
 # ____________________________________________________________
 # Ignored
@@ -159,7 +158,13 @@ OpenBracket = r'[\[\(\{]'
 CloseBracket = r'[\]\)\}]'
 
 # ____________________________________________________________
-# Syntactic Sugar Operators
+# Project: Boolean, String
+
+Boolean = group(r'true', r'false')
+String = group(make_single_string(r"\'"), make_single_string(r'\"'))
+
+# ____________________________________________________________
+# Project: Sugar
 
 Plus = r'\+'
 Minus = r'-'
@@ -178,8 +183,9 @@ Def = r'def'
 Object = r'object'
 
 tokens = ["If", "Else", "While", "Def", "Object", "Number", "String", "Ignore",
+          "Boolean",  # Project: Boolean
           "NewlineAndWhitespace", "OpenBracket", "CloseBracket", "Comma", "Assign", "Colon",
-          "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",  # Sugar
+          "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",  # Project: Sugar
           "Name", "PrimitiveName"]
 
 

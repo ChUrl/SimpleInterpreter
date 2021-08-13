@@ -3,25 +3,32 @@ all_primitives = []
 primitive_number_of_arguments = []
 
 
-def primitive(name, unwrap_spec, wrap_spec):
+def primitive(name, unwrap_spec, wrap_spec):  # decorator arguments
     assert '$' + name not in registry, '${name} already defined'.format(name=name)
     primitive_number_of_arguments.append(len(unwrap_spec) - 1)  # first argument is the receiver
 
-    def expose(func):
+    def expose(func):  # decorator
         def unwrapper(w_receiver, args_w, space):
             args = [w_receiver] + args_w
-            if len(args) != len(unwrap_spec):
+            if len(args) != len(unwrap_spec):  # check that call args match primitive args
                 raise TypeError(
                     "Expected {ex} arguments, received {re}.".format(ex=len(unwrap_spec), re=len(args)))
+
             unwrapped_args = ()
-            for t, arg in zip(unwrap_spec, args):
+            for t, arg in zip(unwrap_spec, args):  # unpack values from simple-objects
                 if t is int:
                     unwrapped_args += (arg.value,)
+                elif t is bool:  # Project: Boolean
+                    unwrapped_args += (bool(arg.value),)  # isn't necessary because "1 or 0" is valid
                 else:
                     unwrapped_args += (arg,)
-            result = func(*unwrapped_args)
-            if wrap_spec is int:
+
+            result = func(*unwrapped_args)  # actual call
+
+            if wrap_spec is int:  # wrap the result
                 return space.newint(result)
+            elif wrap_spec is bool:  # Project: Boolean
+                return space.newbool(result)
             return result
 
         unwrapper.__qualname__ = name
@@ -45,12 +52,7 @@ def simple_int_add(a, b):
     return a + b
 
 
-@primitive('int_eq', [int, int], int)
-def simple_int_eq(a, b):
-    return a == b
-
-
-# Syntactic Sugar Primitives
+# Project: Sugar
 @primitive("int_sub", [int, int], int)
 def simple_int_subtract(a, b):
     return a - b
@@ -74,3 +76,54 @@ def simple_int_modulo(a, b):
 @primitive("int_inc", [int], int)
 def simple_int_increment(a):
     return a + 1
+
+
+# Project: Boolean
+@primitive("bool_and", [bool, bool], bool)
+def simple_bool_and(a, b):
+    return a and b
+
+
+@primitive("bool_or", [bool, bool], bool)
+def simple_bool_or(a, b):
+    return a or b
+
+
+@primitive("bool_not", [bool], bool)
+def simple_bool_not(a):
+    return not a
+
+
+@primitive("int_eq", [int, int], bool)
+def simple_int_eq(a, b):
+    return a == b
+
+
+@primitive("int_leq", [int, int], bool)
+def simple_int_leq(a, b):
+    return a <= b
+
+
+@primitive("int_geq", [int, int], bool)
+def simple_int_geq(a, b):
+    return a >= b
+
+
+@primitive("int_greater", [int, int], bool)
+def simple_int_greater(a, b):
+    return a > b
+
+
+@primitive("int_less", [int, int], bool)
+def simple_int_less(a, b):
+    return a < b
+
+
+@primitive("int_tobool", [int], bool)
+def simple_int_tobool(a):
+    return a
+
+
+@primitive("bool_toint", [bool], int)
+def simple_bool_toint(a):
+    return a

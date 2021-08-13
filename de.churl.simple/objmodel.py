@@ -74,16 +74,17 @@ class W_NormalObject(AbstractObject):
 
 
 class W_Integer(AbstractObject):
-    def __init__(self, value, space=None):
-        self.value = value
+    def __init__(self, value, space=None, trait="inttrait"):
+        self.value = int(value)
         self.space = space
+        self.__trait = trait  # used this to extend from W_Integer
 
     def getparents(self):
         if self.space is None:
             return []  # for tests
-        inttrait = self.space.getbuiltin('inttrait')
-        assert inttrait is not None, 'O_o bogus state'
-        return [inttrait]
+        trait = self.space.getbuiltin(self.__trait)
+        assert trait is not None, 'O_o bogus state'
+        return [trait]
 
     def hasslot(self, name):
         return False
@@ -95,6 +96,12 @@ class W_Integer(AbstractObject):
 
     def istrue(self):
         return self.value != 0
+
+
+# Project: Boolean
+class W_Boolean(W_Integer):  # don't know if extending is good idea
+    def __init__(self, value, space=None):
+        super().__init__(int(value), space=space, trait="booltrait")
 
 
 class W_Method(W_NormalObject):

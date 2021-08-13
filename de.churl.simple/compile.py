@@ -109,23 +109,24 @@ import simpleast
 
 # ---------- bytecodes ----------
 
-INT_LITERAL = 2               # integer value
-ASSIGNMENT = 4                # index of attrname
-METHOD_LOOKUP = 5             # index of method name
-METHOD_CALL = 6               # number of arguments
-PRIMITIVE_METHOD_CALL = 7     # number of the primitive
-MAKE_FUNCTION = 8             # bytecode literal index
-MAKE_OBJECT = 9               # index of object name
-ASSIGNMENT_APPEND_PARENT = 10 # index of parentname
-MAKE_OBJECT_CALL = 11         # bytecode literal index
-JUMP_IF_FALSE = 12            # offset
-JUMP = 13                     # offset
-GET_LOCAL = 15                # index of attrname (optimization)
-SET_LOCAL = 16                # index of attrname (optimization)
+BOOL_LITERAL = 1  # 1 or 0 # Project: Boolean
+INT_LITERAL = 2  # integer value
+ASSIGNMENT = 4  # index of attrname
+METHOD_LOOKUP = 5  # index of method name
+METHOD_CALL = 6  # number of arguments
+PRIMITIVE_METHOD_CALL = 7  # number of the primitive
+MAKE_FUNCTION = 8  # bytecode literal index
+MAKE_OBJECT = 9  # index of object name
+ASSIGNMENT_APPEND_PARENT = 10  # index of parentname
+MAKE_OBJECT_CALL = 11  # bytecode literal index
+JUMP_IF_FALSE = 12  # offset
+JUMP = 13  # offset
+GET_LOCAL = 15  # index of attrname (optimization)
+SET_LOCAL = 16  # index of attrname (optimization)
 
-IMPLICIT_SELF = 32            # (no argument)
-POP = 33                      # (no argument)
-DUP = 34                      # (no argument)
+IMPLICIT_SELF = 32  # (no argument)
+POP = 33  # (no argument)
+DUP = 34  # (no argument)
 
 opcode_names = [None] * 256
 for key, value in list(globals().items()):
@@ -133,10 +134,10 @@ for key, value in list(globals().items()):
         opcode_names[value] = key
 
 
-
 def hasarg(opcode):
     """ Helper function to determine whether an opcode has an argument."""
     return opcode < 32
+
 
 def isjump(opcode):
     """ Helper function to determine whether an opcode is a jump."""
@@ -188,6 +189,7 @@ def compile(ast, argumentnames=[], name=None):
 
 
 stack_effects = {
+    BOOL_LITERAL: 1,  # Project: Boolean
     INT_LITERAL: 1,
     ASSIGNMENT: -1,
     METHOD_LOOKUP: 1,
@@ -219,10 +221,10 @@ class Compiler(object):
         for name, index in list(self.symbols.items()):
             symbols[index] = name
         result = Bytecode(''.join(self.code),
-                        funcname,
-                        symbols,
-                        self.subbytecodes,
-                        numargs, self.max_stackdepth)
+                          funcname,
+                          symbols,
+                          self.subbytecodes,
+                          numargs, self.max_stackdepth)
         assert self.stackdepth == 1
         return result
 
@@ -257,10 +259,10 @@ class Compiler(object):
         return len(self.code)
 
     def set_target_position(self, oldposition, newtarget):
-        offset = newtarget - (oldposition+5)
+        offset = newtarget - (oldposition + 5)
         i = 0
         for c in self.encode4(offset):
-            self.code[oldposition+1+i] = c
+            self.code[oldposition + 1 + i] = c
             i += 1
 
     def encode4(self, value):
@@ -274,12 +276,15 @@ class Compiler(object):
             self.symbols[symbol] = len(self.symbols)
         return self.symbols[symbol]
 
-
     def compile(self, ast, needsresult=True):
         return getattr(self, "compile_" + ast.__class__.__name__)(ast, needsresult)
 
     def compile_IntLiteral(self, astnode, needsresult):
         self.emit(INT_LITERAL, astnode.value)
+
+    # Project: Boolean
+    def compile_BooleanLiteral(self, astnode, needsresult):
+        self.emit(BOOL_LITERAL, astnode.value)
 
     def compile_ImplicitSelf(self, astnode, needsresult):
         self.emit(IMPLICIT_SELF)
@@ -318,7 +323,7 @@ class Compiler(object):
         expected_args = primitives.get_number_of_arguments_of_primitive(index)
         if not (len(astnode.arguments) == expected_args):
             raise TypeError(
-                    "Expected {ex} arguments, received {re}.".format(ex=expected_args, re=len(astnode.arguments)))
+                "Expected {ex} arguments, received {re}.".format(ex=expected_args, re=len(astnode.arguments)))
         self.compile(astnode.receiver)
         for arg in astnode.arguments:
             self.compile(arg)

@@ -7,5 +7,42 @@ def pass:
 object inttrait:
     def add(other):
         self $int_add(other)
+
+    # Project: Sugar
+    def sub(other):
+        self $int_sub(other)
+    def mul(other):
+        self $int_mul(other)
+    def div(other):
+        self $int_div(other)
+    def mod(other):
+        self $int_mod(other)
+    def inc:
+        self $int_inc
+
+    # Project: Boolean
     def eq(other):
         self $int_eq(other)
+    def leq(other):
+        self $int_leq(other)
+    def geq(other):
+        self $int_geq(other)
+    def greater(other):
+        self $int_greater(other)
+    def less(other):
+        self $int_less(other)
+
+    def tobool:
+        self $int_tobool
+
+# Project: Boolean
+object booltrait:
+    def and(other):
+        self $bool_and(other)
+    def or(other):
+        self $bool_or(other)
+    def not:
+        self $bool_not
+
+    def toint:
+        self $bool_toint

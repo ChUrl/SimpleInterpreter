@@ -1,8 +1,22 @@
 import py
+from rply import Token
 
+from simpleast import Program, ExprStatement, BooleanLiteral, Assignment, ImplicitSelf
+from simplelexer import lex
 from simpleparser import parse
-from objmodel import W_NormalObject, W_Integer
+from objmodel import W_NormalObject, W_Integer, W_Boolean
 from interpreter import Interpreter
+
+
+def test_basic_boolean_lexing():
+    assert lex("true")[0] == Token("Boolean", "true")
+    assert lex("false")[0] == Token("Boolean", "false")
+    assert lex("x = true")[:3] == [Token("Name", "x"), Token("Assign", "="), Token("Boolean", "true")]
+
+
+def test_basic_boolean_parsing():
+    assert parse("false") == Program([ExprStatement(BooleanLiteral("false"))])
+    assert parse("x = false") == Program([Assignment(ImplicitSelf(), "x", BooleanLiteral("false"))])
 
 
 def test_boolean_assignment():
@@ -24,7 +38,7 @@ def test_boolean_operations():
     ast = parse("""
 x = true and(false)
 y = true or(false)
-z = not(true)
+z = true not
 """)
     interpreter = Interpreter()
     w_model = interpreter.make_module()
@@ -55,7 +69,7 @@ y = 1 leq(2)
 
 def test_boolean_conversion():
     ast = parse("""
-x = 1 toboolean
+x = 1 tobool
 y = true toint
 z = false toint
 """)

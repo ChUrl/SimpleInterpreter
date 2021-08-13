@@ -64,6 +64,9 @@ class Interpreter(object):
                 elif opcode == compile.INT_LITERAL:
                     w_value = self.space.newint(oparg)
                     stack.append(w_value)
+                elif opcode == compile.BOOL_LITERAL:  # Project: Boolean
+                    w_value = self.space.newbool(oparg)  # oparg is 1 or 0
+                    stack.append(w_value)
                 elif opcode == compile.MAKE_FUNCTION:
                     bc = bytecode.subbytecodes[oparg]
                     w_method = self.space.definemethod(name=bc.name, code=bc, w_target=w_context)

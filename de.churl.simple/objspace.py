@@ -1,4 +1,4 @@
-from objmodel import W_Integer
+from objmodel import W_Integer, W_Boolean
 from objmodel import W_Method
 from objmodel import W_NormalObject
 
@@ -48,6 +48,10 @@ class ObjectSpace(object):
 
     def newint(self, value):
         return W_Integer(value, space=self)
+
+    # Project: Boolean
+    def newbool(self, value):
+        return W_Boolean(value, space=self)
 
     def definemethod(self, name, code, w_target):
         w_meth = W_Method(code, name=name,
