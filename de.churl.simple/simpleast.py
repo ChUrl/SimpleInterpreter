@@ -93,16 +93,6 @@ class IntLiteral(Expression):
         self.value = int(value)
 
 
-# Project: String
-class StringLiteral(Expression):
-    """ A string literal (like "hello world") """
-
-    attrs = ["value"]
-
-    def __init__(self, value):
-        self.value = str(value)
-
-
 # Project: Boolean
 class BooleanLiteral(Expression):
     """ A boolean literal (like "false") """
@@ -111,6 +101,16 @@ class BooleanLiteral(Expression):
 
     def __init__(self, value):
         self.value = value == "true"
+
+
+# Project: String
+class StringLiteral(Expression):
+    """ A string literal (like "hello world") """
+
+    attrs = ["value"]
+
+    def __init__(self, value):
+        self.value = str(value)
 
 
 class MethodCall(Expression):

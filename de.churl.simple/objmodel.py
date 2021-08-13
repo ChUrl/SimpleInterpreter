@@ -77,7 +77,7 @@ class W_Integer(AbstractObject):
     def __init__(self, value, space=None, trait="inttrait"):
         self.value = int(value)
         self.space = space
-        self.__trait = trait  # used this to extend from W_Integer
+        self.__trait = trait  # able to extend from W_Integer
 
     def getparents(self):
         if self.space is None:
@@ -102,6 +102,37 @@ class W_Integer(AbstractObject):
 class W_Boolean(W_Integer):  # don't know if extending is good idea
     def __init__(self, value, space=None):
         super().__init__(int(value), space=space, trait="booltrait")
+
+    def __str__(self):
+        return str(bool(self.value))
+
+    __repr__ = __str__
+
+
+# Project: String
+class W_String(AbstractObject):
+    def __init__(self, value, space=None):
+        self.value = str(value)
+        self.space = space
+        self.__trait = "strtrait"
+
+    def getparents(self):
+        if self.space is None:
+            return []  # for tests
+        trait = self.space.getbuiltin(self.__trait)
+        assert trait is not None, 'O_o bogus state'
+        return [trait]
+
+    def hasslot(self, name):
+        return False
+
+    def __str__(self):
+        return self.value
+
+    __repr__ = __str__
+
+    def istrue(self):
+        return self.value != ""
 
 
 class W_Method(W_NormalObject):

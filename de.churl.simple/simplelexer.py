@@ -1,4 +1,4 @@
-from rply import LexerGenerator
+from rply import LexerGenerator, LexingError
 from rply.token import Token
 
 # attempts at writing a simple Python-like lexer
@@ -90,7 +90,7 @@ def postprocess(tokens, source):
         elif token.name == "CloseBracket":
             parenthesis_level -= 1
             if parenthesis_level < 0:
-                raise LexerError(source, token.source_pos, "unmatched parenthesis")
+                raise LexingError("unmatched parenthesis", token.source_pos)
             output_tokens.append(token)
         elif token.name == "NewlineAndWhitespace":
             if i + 1 < len(tokens) and tokens[i + 1].name == "NewlineAndWhitespace":
@@ -182,8 +182,8 @@ While = r'while'
 Def = r'def'
 Object = r'object'
 
-tokens = ["If", "Else", "While", "Def", "Object", "Number", "String", "Ignore",
-          "Boolean",  # Project: Boolean
+tokens = ["If", "Else", "While", "Def", "Object", "Number", "Ignore",
+          "String", "Boolean",  # Project: Boolean, String
           "NewlineAndWhitespace", "OpenBracket", "CloseBracket", "Comma", "Assign", "Colon",
           "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",  # Project: Sugar
           "Name", "PrimitiveName"]

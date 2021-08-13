@@ -111,6 +111,7 @@ import simpleast
 
 BOOL_LITERAL = 1  # 1 or 0 # Project: Boolean
 INT_LITERAL = 2  # integer value
+STRING_LITERAL = 3  # Project: String
 ASSIGNMENT = 4  # index of attrname
 METHOD_LOOKUP = 5  # index of method name
 METHOD_CALL = 6  # number of arguments
@@ -190,6 +191,7 @@ def compile(ast, argumentnames=[], name=None):
 
 stack_effects = {
     BOOL_LITERAL: 1,  # Project: Boolean
+    STRING_LITERAL: 1,  # Project: String
     INT_LITERAL: 1,
     ASSIGNMENT: -1,
     METHOD_LOOKUP: 1,
@@ -240,11 +242,11 @@ class Compiler(object):
                 self.code.append(c)
         elif hasarg(opcode):
             assert isinstance(arg, int)
-            if -127 <= arg <= 127:
-                self.code.append(chr(arg & 0xFF))
+            if -127 <= arg <= 127:  # arg can be encoded as one byte
+                self.code.append(chr(arg & 0xFF))  # mask the least significant byte and convert to unicode
             else:
-                self.code.append(chr(128))
-                for c in self.encode4(arg):
+                self.code.append(chr(128))  # padding character
+                for c in self.encode4(arg):  # append as 4 single bytes
                     self.code.append(c)
         else:
             assert arg is None
@@ -266,14 +268,17 @@ class Compiler(object):
             i += 1
 
     def encode4(self, value):
+        """ Encodes 4 byte value as list of 4 unicode characters. """
         return [chr(value & 0xFF),
                 chr((value >> 8) & 0xFF),
                 chr((value >> 16) & 0xFF),
                 chr((value >> 24) & 0xFF)]
 
     def lookup_symbol(self, symbol):
+        """ Assigns indices to symbols/strings """
         if symbol not in self.symbols:
             self.symbols[symbol] = len(self.symbols)
+
         return self.symbols[symbol]
 
     def compile(self, ast, needsresult=True):
@@ -285,6 +290,10 @@ class Compiler(object):
     # Project: Boolean
     def compile_BooleanLiteral(self, astnode, needsresult):
         self.emit(BOOL_LITERAL, astnode.value)
+
+    # Project: String
+    def compile_StringLiteral(self, astnode, needsresult):
+        self.emit(STRING_LITERAL, self.lookup_symbol(astnode.value))  # save string value to symboltable
 
     def compile_ImplicitSelf(self, astnode, needsresult):
         self.emit(IMPLICIT_SELF)

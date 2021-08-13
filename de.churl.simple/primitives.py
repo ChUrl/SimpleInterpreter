@@ -19,7 +19,9 @@ def primitive(name, unwrap_spec, wrap_spec):  # decorator arguments
                 if t is int:
                     unwrapped_args += (arg.value,)
                 elif t is bool:  # Project: Boolean
-                    unwrapped_args += (bool(arg.value),)  # isn't necessary because "1 or 0" is valid
+                    unwrapped_args += (bool(arg.value),)  # isn't really necessary because "1 or 0" is also valid
+                elif t is str:  # Project: String
+                    unwrapped_args += (arg.value,)
                 else:
                     unwrapped_args += (arg,)
 
@@ -29,6 +31,8 @@ def primitive(name, unwrap_spec, wrap_spec):  # decorator arguments
                 return space.newint(result)
             elif wrap_spec is bool:  # Project: Boolean
                 return space.newbool(result)
+            elif wrap_spec is str:  # Project: String
+                return space.newstring(result)
             return result
 
         unwrapper.__qualname__ = name
@@ -78,6 +82,17 @@ def simple_int_increment(a):
     return a + 1
 
 
+# Project: Boolean, String, Double
+@primitive("int_tobool", [int], bool)
+def simple_int_tobool(a):
+    return a
+
+
+@primitive("int_tostr", [int], str)
+def simple_int_tobstr(a):
+    return a
+
+
 # Project: Boolean
 @primitive("bool_and", [bool, bool], bool)
 def simple_bool_and(a, b):
@@ -94,6 +109,17 @@ def simple_bool_not(a):
     return not a
 
 
+@primitive("bool_toint", [bool], int)
+def simple_bool_toint(a):
+    return a
+
+
+@primitive("bool_tostr", [bool], str)
+def simple_bool_tostr(a):
+    return str(a).lower()
+
+
+# bool stuff for int
 @primitive("int_eq", [int, int], bool)
 def simple_int_eq(a, b):
     return a == b
@@ -119,11 +145,32 @@ def simple_int_less(a, b):
     return a < b
 
 
-@primitive("int_tobool", [int], bool)
-def simple_int_tobool(a):
+# Project: String
+@primitive("str_eq", [str, str], bool)
+def simple_str_eq(a, b):
+    return a == b
+
+
+@primitive("str_add", [str, str], str)
+def simple_str_add(a, b):
+    return a + b
+
+
+@primitive("str_rev", [str], str)
+def simple_str_eq(a):
+    return a[::-1]
+
+
+@primitive("str_len", [str], int)
+def simple_str_eq(a):
+    return len(a)
+
+
+@primitive("str_toint", [str], int)
+def simple_str_toint(a):
     return a
 
 
-@primitive("bool_toint", [bool], int)
-def simple_bool_toint(a):
-    return a
+@primitive("str_tobool", [str], bool)
+def simple_str_tobool(a):
+    return a == "true"

@@ -20,10 +20,11 @@ class Interpreter(object):
         return self.run(code, w_context)
 
     def read4(self, code, pc):
-        highval = ord(code[pc + 3])
-        if highval >= 128:
+        """ Converts 4 unicode characters to single 4 byte value """
+        highval = ord(code[pc + 3])  # most significant byte
+        if highval >= 128:  # convert from 2's complement?
             highval -= 256
-        return (ord(code[pc]) |
+        return (ord(code[pc]) |  # merge single bytes into 4 byte value
                 (ord(code[pc + 1]) << 8) |
                 (ord(code[pc + 2]) << 16) |
                 (highval << 24))
@@ -34,7 +35,7 @@ class Interpreter(object):
         code = bytecode.code
         print(disassemble(bytecode))
         while pc < len(code):
-            opcode = ord(code[pc])
+            opcode = ord(code[pc])  # convert unicode to number
             pc += 1
             if compile.isjump(opcode):
                 oparg = self.read4(code, pc)
@@ -66,6 +67,10 @@ class Interpreter(object):
                     stack.append(w_value)
                 elif opcode == compile.BOOL_LITERAL:  # Project: Boolean
                     w_value = self.space.newbool(oparg)  # oparg is 1 or 0
+                    stack.append(w_value)
+                elif opcode == compile.STRING_LITERAL:  # Project: String
+                    value = bytecode.symbols[oparg]
+                    w_value = self.space.newstring(value)
                     stack.append(w_value)
                 elif opcode == compile.MAKE_FUNCTION:
                     bc = bytecode.subbytecodes[oparg]

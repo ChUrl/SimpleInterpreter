@@ -6,10 +6,10 @@ from simplelexer import lex
 import simpleast
 
 pg = ParserGenerator(["If", "Else", "While", "Def", "Object", "Number",
-                      "Boolean",  # New Types
-                      "String", "Name", "Indent", "Dedent", "Newline", "OpenBracket",
+                      "String", "Boolean",  # Project: Boolean, String
+                      "Name", "Indent", "Dedent", "Newline", "OpenBracket",
                       "CloseBracket", "Comma", "Assign", "Colon",
-                      "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",  # Sugar
+                      "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",  # Project: Sugar
                       "PrimitiveName", "EOF"],
                      # Operator precedence for ambiguous rules, ascending
                      precedence=[("left", ["Plus", "Minus"]),
@@ -198,16 +198,16 @@ def number_expression(stmt):
     return simpleast.IntLiteral(stmt[0].value)
 
 
-# Project: String
-@pg.production("basic_expression : String")
-def string_expression(stmt):
-    return simpleast.StringLiteral(stmt[0].value[1:-1])  # cut off delimiters
-
-
 # Project: Boolean
 @pg.production("basic_expression : Boolean")
 def boolean_expression(stmt):
     return simpleast.BooleanLiteral(stmt[0].value)
+
+
+# Project: String
+@pg.production("basic_expression : String")
+def string_expression(stmt):
+    return simpleast.StringLiteral(stmt[0].value[1:-1])  # cut off delimiters
 
 
 @pg.production("basic_expression : implicitselfmethodcall")

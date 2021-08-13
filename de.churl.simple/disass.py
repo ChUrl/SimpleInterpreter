@@ -1,5 +1,6 @@
 import compile
 
+
 def disassemble(bytecode, indent='', pc=-1):
     """ disassemble a bytecode object and print a readabable version of it"""
     assert isinstance(bytecode, compile.Bytecode)
@@ -18,12 +19,13 @@ for name, value in list(compile.__dict__.items()):
 class AbstractDisassembler(object):
 
     def read4(self, code, pc):
-        highval = ord(code[pc+3])
+        """ Converts 4 unicode characters to single 4 byte value """
+        highval = ord(code[pc + 3])
         if highval >= 128:
             highval -= 256
         return (ord(code[pc]) |
-                (ord(code[pc+1]) << 8) |
-                (ord(code[pc+2]) << 16) |
+                (ord(code[pc + 1]) << 8) |
+                (ord(code[pc + 2]) << 16) |
                 (highval << 24))
 
     def disassemble(self, bytecode, currpc=-1):
@@ -114,5 +116,3 @@ class Disassembler(AbstractDisassembler):
             print()
         else:
             print('\t', oparg)
-
-
