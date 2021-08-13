@@ -7,7 +7,6 @@ from interpreter import Interpreter
 
 def sugar_test_helper(expr):
     ast = parse("x = " + expr)
-    print(ast)
     interpreter = Interpreter()
     w_module = interpreter.make_module()
     interpreter.eval(ast, w_module)

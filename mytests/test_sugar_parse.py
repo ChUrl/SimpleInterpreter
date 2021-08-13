@@ -11,4 +11,5 @@ def test_parsing():
 
 
 def test_parsing_parenthesis():
-    pass
+    assert parse("(1 + 2)") == parse("1 $int_add(2)")
+    assert parse("1 * (2 + 3)") == parse("1 $int_mul(2 $int_add(3))")
