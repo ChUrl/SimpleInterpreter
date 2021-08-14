@@ -72,6 +72,10 @@ class Interpreter(object):
                     value = bytecode.symbols[oparg]
                     w_value = self.space.newstring(value)
                     stack.append(w_value)
+                elif opcode == compile.DOUBLE_LITERAL:  # Project: Double
+                    value = bytecode.symbols[oparg]
+                    w_value = self.space.newdouble(value)
+                    stack.append(w_value)
                 elif opcode == compile.MAKE_FUNCTION:
                     bc = bytecode.subbytecodes[oparg]
                     w_method = self.space.definemethod(name=bc.name, code=bc, w_target=w_context)

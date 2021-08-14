@@ -113,6 +113,16 @@ class StringLiteral(Expression):
         self.value = str(value)
 
 
+# Project: Double
+class DoubleLiteral(Expression):
+    """ A double literal (like "1.0", ".0", "1.", "+1.0") """
+
+    attrs = ["value"]
+
+    def __init__(self, value):
+        self.value = float(value)
+
+
 class MethodCall(Expression):
     """ A call to a method with name 'methodname' on 'receiver' with
     'arguments' (which is a list of expression ASTs).

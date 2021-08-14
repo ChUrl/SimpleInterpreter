@@ -16,12 +16,10 @@ def primitive(name, unwrap_spec, wrap_spec):  # decorator arguments
 
             unwrapped_args = ()
             for t, arg in zip(unwrap_spec, args):  # unpack values from simple-objects
-                if t is int:
+                if t in [int, str, float]:  # Project: Double, String
                     unwrapped_args += (arg.value,)
                 elif t is bool:  # Project: Boolean
                     unwrapped_args += (bool(arg.value),)  # isn't really necessary because "1 or 0" is also valid
-                elif t is str:  # Project: String
-                    unwrapped_args += (arg.value,)
                 else:
                     unwrapped_args += (arg,)
 
@@ -33,6 +31,8 @@ def primitive(name, unwrap_spec, wrap_spec):  # decorator arguments
                 return space.newbool(result)
             elif wrap_spec is str:  # Project: String
                 return space.newstring(result)
+            elif wrap_spec is float:  # Project: Double
+                return space.newdouble(result)
             return result
 
         unwrapper.__qualname__ = name
@@ -93,6 +93,11 @@ def simple_int_tobstr(a):
     return a
 
 
+@primitive("int_todouble", [int], float)
+def simple_int_tobdouble(a):
+    return a
+
+
 # Project: Boolean
 @primitive("bool_and", [bool, bool], bool)
 def simple_bool_and(a, b):
@@ -117,6 +122,11 @@ def simple_bool_toint(a):
 @primitive("bool_tostr", [bool], str)
 def simple_bool_tostr(a):
     return str(a).lower()
+
+
+@primitive("bool_todouble", [bool], float)
+def simple_bool_todouble(a):
+    return a
 
 
 # bool stuff for int
@@ -174,3 +184,49 @@ def simple_str_toint(a):
 @primitive("str_tobool", [str], bool)
 def simple_str_tobool(a):
     return a == "true"
+
+
+@primitive("str_todouble", [str], float)
+def simple_str_todouble(a):
+    return a
+
+
+# Project: Double
+@primitive("double_eq", [float, float], bool)
+def simple_double_eq(a, b):
+    return a == b
+
+
+@primitive("double_add", [float, float], float)
+def simple_double_add(a, b):
+    return a + b
+
+
+@primitive("double_sub", [float, float], float)
+def simple_double_sub(a, b):
+    return a - b
+
+
+@primitive("double_mul", [float, float], float)
+def simple_double_mul(a, b):
+    return a * b
+
+
+@primitive("double_div", [float, float], float)
+def simple_double_div(a, b):
+    return a / b
+
+
+@primitive("double_toint", [float], int)
+def simple_double_toint(a):
+    return a
+
+
+@primitive("double_tobool", [float], bool)
+def simple_double_tobool(a):
+    return a
+
+
+@primitive("double_tostr", [float], str)
+def simple_double_tostr(a):
+    return a

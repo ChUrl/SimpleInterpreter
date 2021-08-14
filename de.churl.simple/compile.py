@@ -112,6 +112,7 @@ import simpleast
 BOOL_LITERAL = 1  # 1 or 0 # Project: Boolean
 INT_LITERAL = 2  # integer value
 STRING_LITERAL = 3  # Project: String
+DOUBLE_LITERAL = 17  # Project: Double
 ASSIGNMENT = 4  # index of attrname
 METHOD_LOOKUP = 5  # index of method name
 METHOD_CALL = 6  # number of arguments
@@ -192,6 +193,7 @@ def compile(ast, argumentnames=[], name=None):
 stack_effects = {
     BOOL_LITERAL: 1,  # Project: Boolean
     STRING_LITERAL: 1,  # Project: String
+    DOUBLE_LITERAL: 1,  # Project: Double
     INT_LITERAL: 1,
     ASSIGNMENT: -1,
     METHOD_LOOKUP: 1,
@@ -294,6 +296,10 @@ class Compiler(object):
     # Project: String
     def compile_StringLiteral(self, astnode, needsresult):
         self.emit(STRING_LITERAL, self.lookup_symbol(astnode.value))  # save string value to symboltable
+
+    # Project: Double
+    def compile_DoubleLiteral(self, astnode, needsresult):
+        self.emit(DOUBLE_LITERAL, self.lookup_symbol(astnode.value))
 
     def compile_ImplicitSelf(self, astnode, needsresult):
         self.emit(IMPLICIT_SELF)

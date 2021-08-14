@@ -158,10 +158,16 @@ OpenBracket = r'[\[\(\{]'
 CloseBracket = r'[\]\)\}]'
 
 # ____________________________________________________________
-# Project: Boolean, String
+# Project: Boolean, String, Double
 
-Boolean = group(r'true', r'false')
+Boolean = r"true|false"
 String = group(make_single_string(r"\'"), make_single_string(r'\"'))
+
+_sign = r"([+-])?"
+_int = r"(([1-9][0-9]*)|0)"
+_dec = r"(([0-9]*[1-9])|0)"
+Double = group(_sign + group(_int, r"") + r"\." + _dec,
+               _sign + _int + r"\." + group(_dec, r""))
 
 # ____________________________________________________________
 # Project: Sugar
@@ -182,8 +188,9 @@ While = r'while'
 Def = r'def'
 Object = r'object'
 
-tokens = ["If", "Else", "While", "Def", "Object", "Number", "Ignore",
-          "String", "Boolean",  # Project: Boolean, String
+tokens = ["If", "Else", "While", "Def", "Object", "Ignore",
+          "String", "Boolean", "Double",  # Project: Boolean, String, Double
+          "Number",  # after Double
           "NewlineAndWhitespace", "OpenBracket", "CloseBracket", "Comma", "Assign", "Colon",
           "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",  # Project: Sugar
           "Name", "PrimitiveName"]

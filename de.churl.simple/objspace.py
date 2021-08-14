@@ -1,4 +1,4 @@
-from objmodel import W_Integer, W_Boolean, W_String
+from objmodel import W_Integer, W_Boolean, W_String, W_Double
 from objmodel import W_Method
 from objmodel import W_NormalObject
 
@@ -56,6 +56,10 @@ class ObjectSpace(object):
     # Project: String
     def newstring(self, value):
         return W_String(value, space=self)
+
+    # Project: Double
+    def newdouble(self, value):
+        return W_Double(value, space=self)
 
     def definemethod(self, name, code, w_target):
         w_meth = W_Method(code, name=name,

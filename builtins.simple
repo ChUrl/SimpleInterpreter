@@ -36,6 +36,8 @@ object inttrait:
         self $int_tobool
     def tostr:
         self $int_tostr
+    def todouble:
+        self $int_todouble
 
 # Project: Boolean
 object booltrait:
@@ -50,6 +52,8 @@ object booltrait:
         self $bool_toint
     def tostr:
         self $bool_tostr
+    def todouble:
+        self $bool_todouble
 
 # Project: String
 object strtrait:
@@ -66,3 +70,25 @@ object strtrait:
         self $str_tobool
     def toint:
         self $str_toint
+    def todouble:
+        self $str_todouble
+
+# Project: Double
+object doubletrait:
+    def eq(other):
+        self $double_eq(other)
+    def add(other):
+        self $double_add(other)
+    def sub(other):
+        self $double_sub(other)
+    def mul(other):
+        self $double_mul(other)
+    def div(other):
+        self $double_div(other)
+
+    def toint:
+        self $double_toint
+    def tobool:
+        self $double_tobool
+    def tostr:
+        self $double_tostr

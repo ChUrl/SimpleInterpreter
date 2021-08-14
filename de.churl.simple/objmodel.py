@@ -2,7 +2,6 @@ from c3computation import compute_C3_mro as c3
 
 
 class AbstractObject(object):
-
     def call(self, w_receiver, args_w):
         return self
 
@@ -26,7 +25,6 @@ class AbstractObject(object):
 
 
 class W_NormalObject(AbstractObject):
-
     def __init__(self, name=None, slots=None, parents=None, space=None):
         self.space = space
         self.name = name
@@ -132,11 +130,36 @@ class W_String(AbstractObject):
     __repr__ = __str__
 
     def istrue(self):
+        return self.value != 0.
+
+
+# Project: Double
+class W_Double(W_NormalObject):
+    def __init__(self, value, space=None):
+        self.value = float(value)
+        self.space = space
+        self.__trait = "doubletrait"
+
+    def getparents(self):
+        if self.space is None:
+            return []  # for tests
+        trait = self.space.getbuiltin(self.__trait)
+        assert trait is not None, 'O_o bogus state'
+        return [trait]
+
+    def hasslot(self, name):
+        return False
+
+    def __str__(self):
+        return str(self.value)
+
+    __repr__ = __str__
+
+    def istrue(self):
         return self.value != ""
 
 
 class W_Method(W_NormalObject):
-
     def __init__(self, code, *args, **kwargs):
         super(W_Method, self).__init__(*args, **kwargs)
         self.code = code
