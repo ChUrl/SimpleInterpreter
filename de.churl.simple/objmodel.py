@@ -11,7 +11,7 @@ class AbstractObject(object):
     def clone(self):
         raise NotImplementedError
 
-    def hasslot(self):
+    def hasslot(self, value):
         raise NotImplementedError
 
     def getvalue(self, name):
@@ -22,6 +22,28 @@ class AbstractObject(object):
 
     def get_mro(self):
         return c3(self)
+
+
+class PrimitiveObject(AbstractObject):
+    def __init__(self, value, trait, space=None):
+        self.value = value
+        self._trait = trait
+        self.space = space
+
+    def getparents(self):
+        if self.space is None:
+            return []  # for tests
+        trait = self.space.getbuiltin(self._trait)
+        assert trait is not None, 'O_o bogus state'
+        return [trait]
+
+    def hasslot(self, name):
+        return False
+
+    def __str__(self):
+        return str(self.value)
+
+    __repr__ = __str__
 
 
 class W_NormalObject(AbstractObject):
@@ -71,24 +93,21 @@ class W_NormalObject(AbstractObject):
             slots=self.slots.copy())
 
 
-class W_Integer(AbstractObject):
-    def __init__(self, value, space=None, trait="inttrait"):
-        self.value = int(value)
-        self.space = space
-        self.__trait = trait  # able to extend from W_Integer
+class W_Integer(PrimitiveObject):
+    def __init__(self, value, space=None):
+        super().__init__(int(value), "inttrait", space)
 
-    def getparents(self):
-        if self.space is None:
-            return []  # for tests
-        trait = self.space.getbuiltin(self.__trait)
-        assert trait is not None, 'O_o bogus state'
-        return [trait]
+    def istrue(self):
+        return self.value != 0
 
-    def hasslot(self, name):
-        return False
+
+# Project: Boolean
+class W_Boolean(PrimitiveObject):  # don't know if extending is good idea
+    def __init__(self, value, space=None):
+        super().__init__(int(value), "booltrait", space=space)
 
     def __str__(self):
-        return str(self.value)
+        return str(bool(self.value))
 
     __repr__ = __str__
 
@@ -96,67 +115,22 @@ class W_Integer(AbstractObject):
         return self.value != 0
 
 
-# Project: Boolean
-class W_Boolean(W_Integer):  # don't know if extending is good idea
-    def __init__(self, value, space=None):
-        super().__init__(int(value), space=space, trait="booltrait")
-
-    def __str__(self):
-        return str(bool(self.value))
-
-    __repr__ = __str__
-
-
 # Project: String
-class W_String(AbstractObject):
+class W_String(PrimitiveObject):
     def __init__(self, value, space=None):
-        self.value = str(value)
-        self.space = space
-        self.__trait = "strtrait"
-
-    def getparents(self):
-        if self.space is None:
-            return []  # for tests
-        trait = self.space.getbuiltin(self.__trait)
-        assert trait is not None, 'O_o bogus state'
-        return [trait]
-
-    def hasslot(self, name):
-        return False
-
-    def __str__(self):
-        return self.value
-
-    __repr__ = __str__
-
-    def istrue(self):
-        return self.value != 0.
-
-
-# Project: Double
-class W_Double(W_NormalObject):
-    def __init__(self, value, space=None):
-        self.value = float(value)
-        self.space = space
-        self.__trait = "doubletrait"
-
-    def getparents(self):
-        if self.space is None:
-            return []  # for tests
-        trait = self.space.getbuiltin(self.__trait)
-        assert trait is not None, 'O_o bogus state'
-        return [trait]
-
-    def hasslot(self, name):
-        return False
-
-    def __str__(self):
-        return str(self.value)
-
-    __repr__ = __str__
+        super().__init__(str(value), "strtrait", space)
 
     def istrue(self):
         return self.value != ""
+
+
+# Project: Double
+class W_Double(PrimitiveObject):
+    def __init__(self, value, space=None):
+        super().__init__(float(value), "doubletrait", space)
+
+    def istrue(self):
+        return self.value != 0.
 
 
 class W_Method(W_NormalObject):
