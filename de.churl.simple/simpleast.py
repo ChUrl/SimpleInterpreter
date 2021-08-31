@@ -93,7 +93,7 @@ class IntLiteral(Expression):
         self.value = int(value)
 
 
-# Project: Boolean
+# Project -----
 class BooleanLiteral(Expression):
     """ A boolean literal (like "false") """
 
@@ -103,7 +103,6 @@ class BooleanLiteral(Expression):
         self.value = value == "true"
 
 
-# Project: String
 class StringLiteral(Expression):
     """ A string literal (like "hello world") """
 
@@ -113,7 +112,6 @@ class StringLiteral(Expression):
         self.value = str(value)
 
 
-# Project: Double
 class DoubleLiteral(Expression):
     """ A double literal (like "1.0", ".0", "1.", "+1.0") """
 
@@ -121,6 +119,9 @@ class DoubleLiteral(Expression):
 
     def __init__(self, value):
         self.value = float(value)
+
+
+# -------------
 
 
 class MethodCall(Expression):
@@ -170,6 +171,11 @@ class ImplicitSelf(Expression):
 
 class Statement(AstNode):
     """ Base class of all statement nodes. """
+
+
+# Project
+class GCStatement(Statement):
+    """ Triggers Garbage Collection """
 
 
 class Assignment(Statement):

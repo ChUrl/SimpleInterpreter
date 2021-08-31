@@ -6,10 +6,11 @@ from simplelexer import lex
 import simpleast
 
 pg = ParserGenerator(["If", "Else", "While", "Def", "Object", "Number",
-                      "String", "Boolean", "Double",  # Project: Boolean, String, Double
+                      "String", "Boolean", "Double",
+                      "GC",
                       "Name", "Indent", "Dedent", "Newline", "OpenBracket",
                       "CloseBracket", "Comma", "Assign", "Colon",
-                      "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",  # Project: Sugar
+                      "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",
                       "PrimitiveName", "EOF"],
                      # Operator precedence for ambiguous rules, ascending
                      precedence=[("left", ["Plus", "Minus"]),
@@ -61,6 +62,12 @@ def statements(stmts):
 @pg.production("newlines : Newline newlines")
 def newlines(n):
     return None
+
+
+@pg.production("statement : GC newlines")
+@pg.production("statement : GC")
+def gcstatement(stmt):
+    return simpleast.GCStatement()
 
 
 @pg.production("statement : simplestatement")
@@ -198,19 +205,16 @@ def number_expression(stmt):
     return simpleast.IntLiteral(stmt[0].value)
 
 
-# Project: Boolean
 @pg.production("basic_expression : Boolean")
 def boolean_expression(stmt):
     return simpleast.BooleanLiteral(stmt[0].value)
 
 
-# Project: String
 @pg.production("basic_expression : String")
 def string_expression(stmt):
     return simpleast.StringLiteral(stmt[0].value[1:-1])  # cut off delimiters
 
 
-# Project: Double
 @pg.production("basic_expression : Double")
 def double_expression(stmt):
     return simpleast.DoubleLiteral(stmt[0].value)

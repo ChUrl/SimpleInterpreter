@@ -158,7 +158,7 @@ OpenBracket = r'[\[\(\{]'
 CloseBracket = r'[\]\)\}]'
 
 # ____________________________________________________________
-# Project: Boolean, String, Double
+# Project
 
 Boolean = r"true|false"
 String = group(make_single_string(r"\'"), make_single_string(r'\"'))
@@ -166,11 +166,8 @@ String = group(make_single_string(r"\'"), make_single_string(r'\"'))
 _sign = r"([+-])?"
 _int = r"(([1-9][0-9]*)|0)"
 _dec = r"(([0-9]*[1-9])|0)"
-Double = group(_sign + group(_int, r"") + r"\." + _dec,
-               _sign + _int + r"\." + group(_dec, r""))
-
-# ____________________________________________________________
-# Project: Sugar
+Double = group(_sign + group(_int, r"") + r"\." + _dec,  # 0.1 / .1
+               _sign + _int + r"\." + group(_dec, r""))  # 1.0 / 1.
 
 Plus = r'\+'
 Minus = r'-'
@@ -178,6 +175,8 @@ Multiply = r'\*'
 Divide = r'/'
 Increment = r'\+\+'
 Modulo = r'%'
+
+GC = r'gc'
 
 # ____________________________________________________________
 # Keywords
@@ -189,10 +188,11 @@ Def = r'def'
 Object = r'object'
 
 tokens = ["If", "Else", "While", "Def", "Object", "Ignore",
-          "String", "Boolean", "Double",  # Project: Boolean, String, Double
+          "String", "Boolean", "Double",
           "Number",  # after Double
+          "GC",
           "NewlineAndWhitespace", "OpenBracket", "CloseBracket", "Comma", "Assign", "Colon",
-          "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",  # Project: Sugar
+          "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",
           "Name", "PrimitiveName"]
 
 

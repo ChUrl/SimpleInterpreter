@@ -2,6 +2,9 @@ from c3computation import compute_C3_mro as c3
 
 
 class AbstractObject(object):
+    def __init__(self):
+        self.mark = False  # gc marker
+
     def call(self, w_receiver, args_w):
         return self
 
@@ -24,30 +27,9 @@ class AbstractObject(object):
         return c3(self)
 
 
-class PrimitiveObject(AbstractObject):
-    def __init__(self, value, trait, space=None):
-        self.value = value
-        self._trait = trait
-        self.space = space
-
-    def getparents(self):
-        if self.space is None:
-            return []  # for tests
-        trait = self.space.getbuiltin(self._trait)
-        assert trait is not None, 'O_o bogus state'
-        return [trait]
-
-    def hasslot(self, name):
-        return False
-
-    def __str__(self):
-        return str(self.value)
-
-    __repr__ = __str__
-
-
 class W_NormalObject(AbstractObject):
     def __init__(self, name=None, slots=None, parents=None, space=None):
+        super().__init__()
         self.space = space
         self.name = name
         if slots:
@@ -93,44 +75,59 @@ class W_NormalObject(AbstractObject):
             slots=self.slots.copy())
 
 
-class W_Integer(PrimitiveObject):
-    def __init__(self, value, space=None):
-        super().__init__(int(value), "inttrait", space)
+# Project -----
+class PrimitiveObject(AbstractObject):
+    def __init__(self, value, trait, space=None):
+        super().__init__()
+        self.value = value
+        self._trait = trait
+        self.space = space
 
-    def istrue(self):
-        return self.value != 0
+    def getparents(self):
+        if self.space is None:
+            return []  # for tests
+        trait = self.space.getbuiltin(self._trait)
+        assert trait is not None, 'O_o bogus state'
+        return [trait]
 
-
-# Project: Boolean
-class W_Boolean(PrimitiveObject):  # don't know if extending is good idea
-    def __init__(self, value, space=None):
-        super().__init__(int(value), "booltrait", space=space)
+    def hasslot(self, name):
+        return False
 
     def __str__(self):
-        return str(bool(self.value))
+        return str(self.value)
 
     __repr__ = __str__
 
     def istrue(self):
-        return self.value != 0
+        return bool(self.value)
 
 
-# Project: String
+class W_Integer(PrimitiveObject):
+    def __init__(self, value, space=None):
+        super().__init__(int(value), "inttrait", space)
+
+
+class W_Boolean(PrimitiveObject):
+    def __init__(self, value, space=None):
+        super().__init__(int(value), "booltrait", space=space)
+
+    def __str__(self):
+        return str(bool(self.value))  # true instead of 1
+
+    __repr__ = __str__
+
+
 class W_String(PrimitiveObject):
     def __init__(self, value, space=None):
         super().__init__(str(value), "strtrait", space)
 
-    def istrue(self):
-        return self.value != ""
 
-
-# Project: Double
 class W_Double(PrimitiveObject):
     def __init__(self, value, space=None):
         super().__init__(float(value), "doubletrait", space)
 
-    def istrue(self):
-        return self.value != 0.
+
+# -------------
 
 
 class W_Method(W_NormalObject):

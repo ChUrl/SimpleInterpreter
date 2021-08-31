@@ -1,7 +1,7 @@
-from simpleparser import parse
-from objspace import ObjectSpace
-import compile
 from disass import disassemble
+
+import compile
+from objspace import ObjectSpace
 
 
 class ByteCodeError(Exception):
@@ -46,7 +46,6 @@ class Interpreter(object):
                     w_condition = stack.pop()
                     if self.space.isfalse(w_condition):
                         pc += oparg
-                continue
             elif compile.hasarg(opcode):
                 oparg = ord(code[pc])
                 pc += 1
@@ -62,20 +61,24 @@ class Interpreter(object):
                     stack.append(obj)
                 elif opcode == compile.MAKE_OBJECT_CALL:
                     self.run(bytecode.subbytecodes[oparg], stack[-1])
+
+                # Project -----
                 elif opcode == compile.INT_LITERAL:
                     w_value = self.space.newint(oparg)
                     stack.append(w_value)
-                elif opcode == compile.BOOL_LITERAL:  # Project: Boolean
+                elif opcode == compile.BOOL_LITERAL:
                     w_value = self.space.newbool(oparg)  # oparg is 1 or 0
                     stack.append(w_value)
-                elif opcode == compile.STRING_LITERAL:  # Project: String
+                elif opcode == compile.STRING_LITERAL:
                     value = bytecode.symbols[oparg]
                     w_value = self.space.newstring(value)
                     stack.append(w_value)
-                elif opcode == compile.DOUBLE_LITERAL:  # Project: Double
+                elif opcode == compile.DOUBLE_LITERAL:
                     value = bytecode.symbols[oparg]
                     w_value = self.space.newdouble(value)
                     stack.append(w_value)
+                # -------------
+
                 elif opcode == compile.MAKE_FUNCTION:
                     bc = bytecode.subbytecodes[oparg]
                     w_method = self.space.definemethod(name=bc.name, code=bc, w_target=w_context)
@@ -85,7 +88,7 @@ class Interpreter(object):
                     w_method = self.space.getvalue(stack[-1], name)
                     stack.append(w_method)
                 elif opcode == compile.METHOD_CALL:
-                    arguments_w = [stack.pop() for n in range(oparg)]
+                    arguments_w = [stack.pop() for _ in range(oparg)]
                     arguments_w.reverse()
                     #
                     w_method = stack.pop()
@@ -94,7 +97,7 @@ class Interpreter(object):
                     stack.append(w_result)
                 elif opcode == compile.PRIMITIVE_METHOD_CALL:
                     nargs = self.space.get_number_of_arguments_of_primitive(oparg)
-                    arguments_w = [stack.pop() for n in range(nargs)]
+                    arguments_w = [stack.pop() for _ in range(nargs)]
                     arguments_w.reverse()
                     w_receiver = stack.pop()
                     w_result = self.space.call_primitive(oparg, w_receiver, arguments_w)
@@ -126,6 +129,11 @@ class Interpreter(object):
                     stack.append(w_context)
                 elif opcode == compile.DUP:
                     stack.append(stack[-1])
+
+                # Project
+                elif opcode == compile.GC:
+                    self.space.gc(w_context)
+
                 else:
                     raise ByteCodeError('Invalid bytecode')
         assert pc == len(code)

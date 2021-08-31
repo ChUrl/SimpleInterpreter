@@ -109,10 +109,10 @@ import simpleast
 
 # ---------- bytecodes ----------
 
-BOOL_LITERAL = 1  # 1 or 0 # Project: Boolean
+BOOL_LITERAL = 1  # 1 or 0
 INT_LITERAL = 2  # integer value
-STRING_LITERAL = 3  # Project: String
-DOUBLE_LITERAL = 17  # Project: Double
+STRING_LITERAL = 3
+DOUBLE_LITERAL = 17
 ASSIGNMENT = 4  # index of attrname
 METHOD_LOOKUP = 5  # index of method name
 METHOD_CALL = 6  # number of arguments
@@ -129,6 +129,7 @@ SET_LOCAL = 16  # index of attrname (optimization)
 IMPLICIT_SELF = 32  # (no argument)
 POP = 33  # (no argument)
 DUP = 34  # (no argument)
+GC = 35  # (no argument)
 
 opcode_names = [None] * 256
 for key, value in list(globals().items()):
@@ -191,9 +192,9 @@ def compile(ast, argumentnames=[], name=None):
 
 
 stack_effects = {
-    BOOL_LITERAL: 1,  # Project: Boolean
-    STRING_LITERAL: 1,  # Project: String
-    DOUBLE_LITERAL: 1,  # Project: Double
+    BOOL_LITERAL: 1,
+    STRING_LITERAL: 1,
+    DOUBLE_LITERAL: 1,
     INT_LITERAL: 1,
     ASSIGNMENT: -1,
     METHOD_LOOKUP: 1,
@@ -208,6 +209,7 @@ stack_effects = {
     IMPLICIT_SELF: 1,
     POP: -1,
     DUP: 1,
+    GC: 0,
 }
 
 
@@ -257,6 +259,7 @@ class Compiler(object):
             stackeffect = stack_effects[opcode]
         else:
             assert stackeffect != sys.maxsize
+
         self.stack_effect(stackeffect)
 
     def get_position(self):
@@ -289,17 +292,23 @@ class Compiler(object):
     def compile_IntLiteral(self, astnode, needsresult):
         self.emit(INT_LITERAL, astnode.value)
 
-    # Project: Boolean
+    # Project -----
     def compile_BooleanLiteral(self, astnode, needsresult):
         self.emit(BOOL_LITERAL, astnode.value)
 
-    # Project: String
     def compile_StringLiteral(self, astnode, needsresult):
         self.emit(STRING_LITERAL, self.lookup_symbol(astnode.value))  # save string value to symboltable
 
-    # Project: Double
     def compile_DoubleLiteral(self, astnode, needsresult):
         self.emit(DOUBLE_LITERAL, self.lookup_symbol(astnode.value))
+
+    def compile_GCStatement(self, astnode, needsresult):
+        self.emit(GC)
+
+        if needsresult:
+            self.emit(BOOL_LITERAL, True)
+
+    # -------------
 
     def compile_ImplicitSelf(self, astnode, needsresult):
         self.emit(IMPLICIT_SELF)
@@ -370,7 +379,7 @@ class Compiler(object):
         for statement in astnode.statements[:-1]:
             self.compile(statement, needsresult=False)
         laststatement = astnode.statements[-1]
-        self.compile(laststatement, needsresult)
+        self.compile(laststatement, needsresult)  # return last result
 
     def compile_FunctionDefinition(self, astnode, needsresult):
         bytecode = compile(astnode.block, astnode.arguments, astnode.name)

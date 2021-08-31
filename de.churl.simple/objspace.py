@@ -1,14 +1,15 @@
+import primitives
+from garbagecollection import mark, sweep, clear_marks
 from objmodel import W_Integer, W_Boolean, W_String, W_Double
 from objmodel import W_Method
 from objmodel import W_NormalObject
-
-import primitives
 
 
 class ObjectSpace(object):
 
     def __init__(self, interpreter):
         self.interpreter = interpreter
+        self.objects = []
 
     def setup_builtins(self, builtincode=None):
         if builtincode is None:
@@ -20,6 +21,7 @@ class ObjectSpace(object):
         ast = parse(builtincode)
 
         self.interpreter.eval(ast, w_builtins)
+        self.objects.clear()  # remove all builtins, lobby from list
 
     def _load_default_builtins(self):
         import os
@@ -40,32 +42,43 @@ class ObjectSpace(object):
             slots = {}
         else:
             slots = {'__parent__': self.getbuiltins()}
-        return W_NormalObject(name=name, slots=slots)
+
+        return W_NormalObject(name=name, slots=slots)  # lobby isn't collected
 
     def newobject(self, name, slots, parentnames):
-        return W_NormalObject(space=self, name=name,
-                              slots=slots, parents=parentnames)
+        self.objects.append(W_NormalObject(space=self, name=name,
+                                           slots=slots, parents=parentnames))
+        return self.objects[-1]
 
+    # Project -----
     def newint(self, value):
-        return W_Integer(value, space=self)
+        self.objects.append(W_Integer(value, space=self))
+        return self.objects[-1]
 
-    # Project: Boolean
     def newbool(self, value):
-        return W_Boolean(value, space=self)
+        self.objects.append(W_Boolean(value, space=self))
+        return self.objects[-1]
 
-    # Project: String
     def newstring(self, value):
-        return W_String(value, space=self)
+        self.objects.append(W_String(value, space=self))
+        return self.objects[-1]
 
-    # Project: Double
     def newdouble(self, value):
-        return W_Double(value, space=self)
+        self.objects.append(W_Double(value, space=self))
+        return self.objects[-1]
+
+    def gc(self, w_context):
+        clear_marks(self.objects)
+        mark(w_context)
+        sweep(self.objects)
+
+    # -------------
 
     def definemethod(self, name, code, w_target):
-        w_meth = W_Method(code, name=name,
-                          slots={'__parent__': w_target},
-                          space=self)
-        return w_meth
+        self.objects.append(W_Method(code, name=name,
+                                     slots={'__parent__': w_target},
+                                     space=self))
+        return self.objects[-1]
 
     def execute(self, code, w_context):
         return self.interpreter.run(code, w_context)
