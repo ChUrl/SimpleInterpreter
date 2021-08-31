@@ -1,4 +1,3 @@
-import py
 from rply import Token
 
 from simpleast import Program, ExprStatement, BooleanLiteral, ImplicitSelf, Assignment, StringLiteral

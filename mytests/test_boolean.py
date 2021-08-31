@@ -1,4 +1,3 @@
-import py
 from rply import Token
 
 from simpleast import Program, ExprStatement, BooleanLiteral, Assignment, ImplicitSelf
@@ -69,6 +68,7 @@ y = 1 leq(2)
 
 def test_boolean_conversion():
     ast = parse("""
+w = 1 tostr
 x = 1 tobool
 y = true toint
 z = false toint

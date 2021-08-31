@@ -1,14 +1,26 @@
 object nil:
     1
 
+
 def pass:
     nil
 
+
 object inttrait:
+    def eq(other):
+        self $int_eq(other)
+
+    def leq(other):
+        self $int_leq(other)
+    def geq(other):
+        self $int_geq(other)
+    def greater(other):
+        self $int_greater(other)
+    def less(other):
+        self $int_less(other)
+
     def add(other):
         self $int_add(other)
-
-    # Project: Sugar
     def sub(other):
         self $int_sub(other)
     def mul(other):
@@ -20,18 +32,6 @@ object inttrait:
     def inc:
         self $int_inc
 
-    # Project: Boolean
-    def eq(other):
-        self $int_eq(other)
-    def leq(other):
-        self $int_leq(other)
-    def geq(other):
-        self $int_geq(other)
-    def greater(other):
-        self $int_greater(other)
-    def less(other):
-        self $int_less(other)
-
     def tobool:
         self $int_tobool
     def tostr:
@@ -39,8 +39,11 @@ object inttrait:
     def todouble:
         self $int_todouble
 
-# Project: Boolean
+
 object booltrait:
+    def eq(other):
+        self $bool_eq(other)
+
     def and(other):
         self $bool_and(other)
     def or(other):
@@ -55,10 +58,11 @@ object booltrait:
     def todouble:
         self $bool_todouble
 
-# Project: String
+
 object strtrait:
     def eq(other):
         self $str_eq(other)
+
     def add(other):
         self $str_add(other)
     def rev:
@@ -73,10 +77,11 @@ object strtrait:
     def todouble:
         self $str_todouble
 
-# Project: Double
+
 object doubletrait:
     def eq(other):
         self $double_eq(other)
+
     def add(other):
         self $double_add(other)
     def sub(other):
