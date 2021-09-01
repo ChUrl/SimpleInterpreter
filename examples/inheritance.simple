@@ -1,0 +1,13 @@
+object shape:
+    size = 1
+
+    def area:
+        size
+
+object square(parent=shape):
+    def area:
+        size * size
+
+object circle(parent=shape):
+    def area:
+        3.1415 * size * size

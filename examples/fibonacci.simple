@@ -1,0 +1,20 @@
+def fibonacci_rec(n):
+    if n <= 1:
+        n
+    else:
+        fibonacci_rec(n - 1) + fibonacci_rec(n - 2)
+
+
+def fibonacci_it(n):
+    if n <= 1:
+        n
+    else:
+        fib = 1
+        prev = 1
+        i = 2
+        while i < n:
+            temp = fib
+            fib = fib + prev
+            prev = temp
+            i++
+        fib
