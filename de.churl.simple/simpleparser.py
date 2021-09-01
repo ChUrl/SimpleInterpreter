@@ -9,13 +9,23 @@ pg = ParserGenerator(["If", "Else", "While", "Def", "Object", "Number",
                       "String", "Boolean", "Double",
                       "GC",
                       "Name", "Indent", "Dedent", "Newline", "OpenBracket",
-                      "CloseBracket", "Comma", "Assign", "Colon",
+                      "CloseBracket", "Comma", "Colon",
                       "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",
-                      "PrimitiveName", "EOF"],
+                      "Decrement", "PlusInplace", "MinusInplace", "MultiplyInplace", "DivideInplace",
+                      "Less", "LessEqual", "Greater", "GreaterEqual", "Equal", "NotEqual",
+                      "Assign",
+                      "And", "Or",
+                      "PrimitiveName", "EOF",
+                      "Not"],
                      # Operator precedence for ambiguous rules, ascending
-                     precedence=[("left", ["Plus", "Minus"]),
+                     precedence=[("left", ["Or"]),
+                                 ("left", ["And"]),
+                                 ("left", ["Equal", "NotEqual"]),
+                                 ("left", ["Less", "LessEqual", "Greater", "GreaterEqual"]),
+                                 ("left", ["Plus", "Minus"]),
                                  ("left", ["Multiply", "Divide", "Modulo"]),
-                                 ("left", ["Increment"])])
+                                 ("left", ["Not"]),
+                                 ("left", ["Increment", "Decrement"])])
 
 
 def build_methodcall(call, cls, receiver=None):
@@ -103,7 +113,6 @@ def objectstatement(obj):
     if len(obj) == 3:
         blk = obj[2]
     else:
-        print(obj)
         parents = obj[2]  # list of assignments (simpleast.Assignment)
         names = [p.attrname for p in parents]
         expressions = [p.expression for p in parents]
@@ -168,22 +177,76 @@ def expression(expr):
 @pg.production("expression : expression Multiply expression")
 @pg.production("expression : expression Divide expression")
 @pg.production("expression : expression Modulo expression")
-@pg.production("expression : expression Increment expression")
-@pg.production("expression : expression Increment")
-def sugar(expr):
+def sugar_binary_arithmetic(expr):
     op = {
-        "Plus": "$int_add",
-        "Minus": "$int_sub",
-        "Multiply": "$int_mul",
-        "Divide": "$int_div",
-        "Modulo": "$int_mod",
-        "Increment": "$int_inc"
+        "Plus": "add",
+        "Minus": "sub",
+        "Multiply": "mul",
+        "Divide": "div",
+        "Modulo": "mod",
     }[expr[1].name]
 
-    if len(expr) == 2:  # unary operator
-        return build_methodcall([op, []], simpleast.PrimitiveMethodCall, expr[0])  # ([name, arg], class, receiver)
+    return build_methodcall([op, [expr[2]]], simpleast.MethodCall, expr[0])  # ([name, arg], class, receiver)
 
-    return build_methodcall([op, [expr[2]]], simpleast.PrimitiveMethodCall, expr[0])
+
+@pg.production("expression : expression Decrement expression")
+@pg.production("expression : expression Decrement")
+@pg.production("expression : expression Increment expression")
+@pg.production("expression : expression Increment")
+@pg.production("expression : expression PlusInplace expression")
+@pg.production("expression : expression MinusInplace expression")
+@pg.production("expression : expression MultiplyInplace expression")
+@pg.production("expression : expression DivideInplace expression")
+def sugar_inplace_arithmetic(expr):
+    op = {
+        "Increment": "inc",
+        "Decrement": "dec",
+        "PlusInplace": "add",
+        "MinusInplace": "sub",
+        "MultiplyInplace": "mul",
+        "DivideInplace": "div",
+    }[expr[1].name]
+    args = [] if len(expr) == 2 else [expr[2]]  # unary/binary
+    methcall = build_methodcall([op, args], simpleast.MethodCall, expr[0])
+
+    if isinstance(expr[0], simpleast.MethodCall) and expr[0].arguments == []:  # attribute
+        return simpleast.Assignment(expr[0].receiver, expr[0].methodname, methcall)  # modify inplace
+
+    return build_methodcall([op, args], simpleast.MethodCall, expr[0])  # just increment
+
+
+@pg.production("expression : expression Less expression")
+@pg.production("expression : expression LessEqual expression")
+@pg.production("expression : expression Greater expression")
+@pg.production("expression : expression GreaterEqual expression")
+@pg.production("expression : expression Equal expression")
+@pg.production("expression : expression NotEqual expression")
+def sugar_comparison(expr):
+    op = {
+        "Less": "less",
+        "LessEqual": "leq",
+        "Greater": "greater",
+        "GreaterEqual": "geq",
+        "Equal": "eq",
+        "NotEqual": "noteq",
+    }[expr[1].name]
+
+    return build_methodcall([op, [expr[2]]], simpleast.MethodCall, expr[0])  # ([name, arg], class, receiver)
+
+
+@pg.production("expression : expression And expression")
+@pg.production("expression : expression Or expression")
+@pg.production("expression : Not expression")
+def sugar_logical(expr):
+    if len(expr) == 2:  # unary
+        return build_methodcall(["not", []], simpleast.MethodCall, expr[1])
+
+    op = {
+        "And": "and",
+        "Or": "or",
+    }[expr[1].name]
+
+    return build_methodcall([op, [expr[2]]], simpleast.MethodCall, expr[0])  # ([name, arg], class, receiver)
 
 
 @pg.production("expression : OpenBracket expression CloseBracket")

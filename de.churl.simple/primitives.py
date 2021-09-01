@@ -106,6 +106,11 @@ def simple_int_increment(a):
     return a + 1
 
 
+@primitive("int_dec", [int], int)
+def simple_int_decrement(a):
+    return a - 1
+
+
 @primitive("int_tobool", [int], bool)
 def simple_int_tobool(a):
     return a

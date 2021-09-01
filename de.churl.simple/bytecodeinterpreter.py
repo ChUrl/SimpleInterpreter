@@ -33,7 +33,7 @@ class Interpreter(object):
         pc = 0
         stack = []
         code = bytecode.code
-        print(disassemble(bytecode))
+        # print(disassemble(bytecode))
         while pc < len(code):
             opcode = ord(code[pc])  # convert unicode to number
             pc += 1

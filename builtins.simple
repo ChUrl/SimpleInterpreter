@@ -9,6 +9,8 @@ def pass:
 object inttrait:
     def eq(other):
         self $int_eq(other)
+    def noteq(other):
+        self $int_eq(other) not
 
     def leq(other):
         self $int_leq(other)
@@ -31,6 +33,8 @@ object inttrait:
         self $int_mod(other)
     def inc:
         self $int_inc
+    def dec:
+        self $int_dec
 
     def tobool:
         self $int_tobool
