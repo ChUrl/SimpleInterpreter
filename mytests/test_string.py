@@ -1,10 +1,10 @@
 from rply import Token
 
-from simpleast import Program, ExprStatement, BooleanLiteral, ImplicitSelf, Assignment, StringLiteral
+from interpreter import Interpreter
+from objmodel import W_Integer, W_String, W_Boolean
+from simpleast import Program, ExprStatement, ImplicitSelf, Assignment, StringLiteral
 from simplelexer import lex
 from simpleparser import parse
-from objmodel import W_NormalObject, W_Integer, W_String, W_Boolean
-from interpreter import Interpreter
 
 
 def test_basic_string_lexing():

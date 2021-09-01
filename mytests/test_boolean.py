@@ -3,7 +3,7 @@ from rply import Token
 from simpleast import Program, ExprStatement, BooleanLiteral, Assignment, ImplicitSelf
 from simplelexer import lex
 from simpleparser import parse
-from objmodel import W_NormalObject, W_Integer, W_Boolean
+from objmodel import W_Integer, W_Boolean
 from interpreter import Interpreter
 
 

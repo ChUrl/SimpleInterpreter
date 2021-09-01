@@ -1,6 +1,6 @@
 from rply import Token
 
-from simpleast import Program, ExprStatement, StringLiteral, ImplicitSelf, Assignment, DoubleLiteral
+from simpleast import Program, ExprStatement, ImplicitSelf, Assignment, DoubleLiteral
 from simplelexer import lex
 from simpleparser import parse
 from objmodel import W_Integer, W_Double
