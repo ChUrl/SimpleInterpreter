@@ -1,0 +1,12 @@
+def function(n):
+    n
+
+def generate_list(n):
+    list = ""
+    i = 1
+    while i < n:
+        list += function(i) tostr
+        list += " "
+        i++
+    list += function(n) tostr
+    list

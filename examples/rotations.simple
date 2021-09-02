@@ -1,0 +1,3 @@
+def rotate(str, n):
+    l = str len
+    str substr(n, l) + str substr(0, n)
