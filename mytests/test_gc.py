@@ -4,7 +4,6 @@ from interpreter import Interpreter
 
 def test_reassignment_gc():
     ast = parse("""
-true
 x = 2
 y = 3
 """)
@@ -64,6 +63,45 @@ z = y
     interpreter.eval(ast, w_model)
     interpreter.space.gc(w_model)
     assert x not in interpreter.space.objects
+
+
+def test_cycle_gc():
+    ast = parse("""
+object a:
+    x = 1
+    
+object b:
+    x = a
+    
+a x = b
+""")
+    interpreter = Interpreter()
+    w_model = interpreter.make_module()
+    interpreter.eval(ast, w_model)
+    interpreter.space.gc(w_model)
+
+    a = w_model.getvalue("a")
+    b = w_model.getvalue("b")
+    assert a in interpreter.space.objects
+    assert b in interpreter.space.objects
+
+    ast = parse("""
+a = 0
+""")
+    interpreter.eval(ast, w_model)
+    interpreter.space.gc(w_model)
+
+    assert a in interpreter.space.objects
+    assert b in interpreter.space.objects
+
+    ast = parse("""
+b = 0
+""")
+    interpreter.eval(ast, w_model)
+    interpreter.space.gc(w_model)
+
+    assert a not in interpreter.space.objects
+    assert b not in interpreter.space.objects
 
 
 def test_object_gc():

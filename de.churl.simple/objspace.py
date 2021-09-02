@@ -44,7 +44,8 @@ class ObjectSpace(object):
         else:
             slots = {'__parent__': self.getbuiltins()}
 
-        return W_NormalObject(name=name, slots=slots)  # lobby isn't collected
+        self.objects.append(W_NormalObject(name=name, slots=slots))  # needed, otherwise marking skips the root
+        return self.objects[-1]
 
     def newobject(self, name, slots, parentnames):
         self.objects.append(W_NormalObject(space=self, name=name,

@@ -1,12 +1,14 @@
 def mark(w_context):
+    if w_context.mark:  # skip cycles
+        return
+
     w_context.mark = True
 
     if not hasattr(w_context, "slots"):  # skip primitive objects
         return
 
     for name, obj in w_context.slots.items():
-        if name != "__parent__":  # only descent
-            mark(obj)
+        mark(obj)
 
 
 def sweep(objects):
