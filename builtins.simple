@@ -69,6 +69,8 @@ object strtrait:
 
     def add(other):
         self $str_add(other)
+    def substr(s, e):
+        self $str_subs(s, e)
     def rev:
         self $str_rev
     def len:

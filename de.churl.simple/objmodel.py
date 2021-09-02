@@ -104,7 +104,7 @@ class PrimitiveObject(AbstractObject):
 
 class W_Integer(PrimitiveObject):
     def __init__(self, value, space=None):
-        super().__init__(int(value), "inttrait", space)
+        super().__init__(int(value), "inttrait", space=space)
 
 
 class W_Boolean(PrimitiveObject):
@@ -119,12 +119,12 @@ class W_Boolean(PrimitiveObject):
 
 class W_String(PrimitiveObject):
     def __init__(self, value, space=None):
-        super().__init__(str(value), "strtrait", space)
+        super().__init__(str(value), "strtrait", space=space)
 
 
 class W_Double(PrimitiveObject):
     def __init__(self, value, space=None):
-        super().__init__(float(value), "doubletrait", space)
+        super().__init__(float(value), "doubletrait", space=space)
 
 
 # -------------

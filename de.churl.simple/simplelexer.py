@@ -173,10 +173,10 @@ Plus = r'\+'
 Minus = r'-'
 Multiply = r'\*'
 Divide = r'/'
-Increment = r'\+\+'
-Decrement = r'--'
 Modulo = r'%'
 
+Increment = r'\+\+'
+Decrement = r'--'
 PlusInplace = r'\+='
 MinusInplace = r'-='
 MultiplyInplace = r'\*='
@@ -206,15 +206,14 @@ Object = r'object'
 
 tokens = ["If", "Else", "While", "Def", "Object", "Ignore",
           "String", "Boolean", "Double",
-          "Number",  # after Double
+          "Number",
           "GC",
           "NewlineAndWhitespace", "OpenBracket", "CloseBracket", "Comma", "Colon",
           "And", "Or", "LessEqual", "Less", "GreaterEqual", "Greater", "Equal", "NotEqual",
           "Decrement", "PlusInplace", "MinusInplace", "MultiplyInplace", "DivideInplace",
           "Increment", "Plus", "Minus", "Multiply", "Divide", "Modulo",
           "Assign", "Not",
-          "Name", "PrimitiveName",
-          ]
+          "Name", "PrimitiveName"]
 
 
 def make_lexer():

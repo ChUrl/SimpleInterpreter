@@ -173,6 +173,11 @@ def simple_str_add(a, b):
     return a + b
 
 
+@primitive("str_subs", [str, int, int], str)
+def simple_str_subs(a, s, e):
+    return a[s:e]
+
+
 @primitive("str_rev", [str], str)
 def simple_str_eq(a):
     return a[::-1]
